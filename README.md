@@ -4,5 +4,5 @@
 #### Website: N/A
 #### Image:
 <img src="https://images2.imgbox.com/09/ba/AIELYyG9_o.jpg" width="200">
-#### Avatar:
+Avatar:
 <img src="https://avatars.githubusercontent.com/u/77354497?v=4" width="75">
