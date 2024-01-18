@@ -3,7 +3,7 @@
 #### Email: Sballen0425@my.msutexas.edu
 #### Website: N/A
 #### Image:
-<img src="[(https://images2.imgbox.com/09/ba/AIELYyG9_o.jpg)]" width="200">
+<img src="[https://images2.imgbox.com/09/ba/AIELYyG9_o.jpg]" width="200">
 
 #### Avatar:
 <img src="https://images2.imgbox.com/ae/bd/tERTAGTL_o.png" width="75">
