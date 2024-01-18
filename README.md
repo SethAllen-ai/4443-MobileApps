@@ -1,5 +1,5 @@
 ## Seth Allen
-#### Repo: 4443 Mobile Apps
+#### Repo: 4443 MobileApps
 #### Email: Sballen0425@my.msutexas.edu
 #### Website: N/A
 #### Image:
