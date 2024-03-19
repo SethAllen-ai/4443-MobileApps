@@ -1,30 +1,17 @@
-import axios from 'axios';
-import { useContext, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import { StyleSheet, Text, View } from 'react-native';
-import { AuthContext } from '../store/auth-context';
+import FlatButton from '../components/ui/FlatButton';
+import { Colors } from '../constants/styles';
 
-function WelcomeScreen() {
-  const [fetchedMessage, setFetchedMessage] = useState('');
+function WelcomeScreen({navigation}) {
 
-  const authCtx = useContext(AuthContext);
-  const token = authCtx.token;
-
-  useEffect(() => {
-   axios.get(
-      'https://degenerate-gambling-club-99ce7-default-rtdb.firebaseio.com/message.json?auth=' + 
-        token
-    )
-    .then((response) => {
-      setFetchedMessage(response.data);
-    }); 
-  }, [token]);
+  function screenNavigation() {
+    navigation.navigate('Profile')
+  }
 
   return (
     <View style={styles.rootContainer}>
-      <Text style={styles.title}>Welcome!</Text>
-      <Text>You authenticated successfully!</Text>
-      <Text>{fetchedMessage}</Text>
+      <FlatButton children={"Profile"} onPress={screenNavigation} />
     </View>
   );
 }
@@ -33,14 +20,12 @@ export default WelcomeScreen;
 
 const styles = StyleSheet.create({
   rootContainer: {
+    margin: 16,
+    borderRadius: 8,
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: Colors.primary800,
+    borderRadius: 8,
   },
 });

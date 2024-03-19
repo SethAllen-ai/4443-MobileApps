@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
 
 import { createContext, useState } from 'react';
 
@@ -18,11 +17,9 @@ function AuthContextProvider({children}) {
     AsyncStorage.setItem('token', token);
   }
 
-  function logout() {
-    const navigation = useNavigation(); 
+  function logout() { 
     setAuthToken(null);
     AsyncStorage.removeItem('token');
-    navigation.navigate('Landing');
   }
 
   const value = {
