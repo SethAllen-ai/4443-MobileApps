@@ -124,11 +124,6 @@ function Root() {
 }
 
 export default function App() {
-  // MongoClient.connect(url, function(err, db) {
-  //   if(!err) {
-  //     console.log("We are connected");
-  //   }
-  // });
   return (
     <>
       <StatusBar style="light" />
