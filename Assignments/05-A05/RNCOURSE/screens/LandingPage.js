@@ -1,5 +1,6 @@
-import { 
-  Image, 
+import {
+  Animated,
+  Easing, 
   View, 
   Text, 
   TouchableOpacity,
@@ -9,15 +10,42 @@ import {
 import  AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { useEffect } from 'react';
 
 const LandingPage = ({navigation}) => {
+  let rotateValueHolder = new Animated.Value(0);
+
+  const StartImageRotateFunction = () => {
+    rotateValueHolder.setValue(0);
+    Animated.timing(rotateValueHolder, {
+      toValue: 1,
+      duration: 10000,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start(() => StartImageRotateFunction());
+  };
+  useEffect(() => {
+    StartImageRotateFunction();
+  }, [])
+
+  const rotateData = rotateValueHolder.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
  return (
     <SafeAreaView style={styles.container}>
-      <Image 
+      <Animated.Image 
+        style={{
+          width: 300,
+          height: 300,
+          borderRadius: 300/2,
+          marginTop: -175, 
+          transform: [{rotate: rotateData}]
+        }}
         source={require('../assets/DEGENERATE_GAMBLING_CLUB.png')}
-        style={styles.image}
       />
-      <Text style={styles.title}>Welcome to Our App</Text>
+      <Text style={styles.title}>Welcome to Pervert Candy</Text>
       <View style={styles.row}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
           <AntDesign name="login" size={25} color="black" />
@@ -57,15 +85,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "black",
     fontSize: 18,
     marginLeft: 10,
-  },
-  image: {
-    width: 300,
-    height: 300,
-    borderRadius: 300/2,
-    marginTop: -175,
   },
   row: {
     flexDirection: 'row'

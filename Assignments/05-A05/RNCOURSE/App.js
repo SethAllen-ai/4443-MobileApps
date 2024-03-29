@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
+import { Provider } from 'react-redux';
 
 import LoadingOverlay from './components/ui/LoadingOverlay';
 import LandingPage from './screens/LandingPage';
@@ -16,27 +18,32 @@ import IconButton from './components/ui/IconButton';
 import { useContext } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ProfileScreen from './screens/ProfileScreen';
+import SearchScreen from './screens/SearchScreen';
+import { store } from './store/redux/store';
 
 const Stack = createNativeStackNavigator();
 
 function LandingRoot() {
   return (
     <SafeAreaProvider>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: Colors.primary500 },
-            headerTintColor: 'white',
-            contentStyle: { backgroundColor: Colors.primary100 },
-          }}
-        >
-          <Stack.Screen name="Landing" component={LandingPage} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen 
-            name="Welcome" 
-            component={WelcomeScreen} 
-          />
-        </Stack.Navigator>
+      <Provider store={store}>
+        <AutocompleteDropdownContextProvider>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: { backgroundColor: Colors.primary500 },
+              headerTintColor: 'white',
+              contentStyle: { backgroundColor: Colors.primary100 },
+            }}
+            >
+            <Stack.Screen name="Landing" component={LandingPage} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen}/>
+            <Stack.Screen name="Search" component={SearchScreen}/>
+          </Stack.Navigator>
+        </AutocompleteDropdownContextProvider>
+      </Provider>
     </SafeAreaProvider>
   );
 }
@@ -47,42 +54,58 @@ function AuthenticatedStack() {
 
   return (
     <SafeAreaProvider>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: { backgroundColor: Colors.primary500 },
-          headerTintColor: 'white',
-          contentStyle: { backgroundColor: Colors.primary100 },
-        }}
-      >
-        <Stack.Screen 
-          name="Welcome" 
-          component={WelcomeScreen} 
-          options = {{
-            headerRight: ({tintColor}) => (
-              <IconButton 
-                icon="exit" 
-                color={tintColor} 
-                size={24} 
-                onPress={authCtx.logout} 
-              />
-            ),
+      <AutocompleteDropdownContextProvider>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: Colors.primary500 },
+            headerTintColor: 'white',
+            contentStyle: { backgroundColor: Colors.primary100 },
           }}
-        />
-        <Stack.Screen 
-          name="Profile"
-          component={ProfileScreen}
-          options ={{
-            headerLeft: ({tintColor}) => (
-              <IconButton
-                icon="arrow-back"
-                color={tintColor}
-                size={24}
-                onPress={() => {navigation.navigate('Welcome')}}
-              />
-            )
-          }}
-        />
-      </Stack.Navigator>
+        >
+          <Stack.Screen 
+            name="Welcome" 
+            component={WelcomeScreen} 
+            options = {{
+              headerRight: ({tintColor}) => (
+                <IconButton 
+                  icon="exit" 
+                  color={tintColor} 
+                  size={24} 
+                  onPress={authCtx.logout} 
+                />
+              ),
+            }}
+          />
+          <Stack.Screen 
+            name="Profile"
+            component={ProfileScreen}
+            options ={{
+              headerLeft: ({tintColor}) => (
+                <IconButton
+                  icon="arrow-back"
+                  color={tintColor}
+                  size={24}
+                  onPress={() => {navigation.navigate('Welcome')}}
+                />
+              )
+            }}
+          />
+          <Stack.Screen 
+              name="Search"
+              component={SearchScreen}
+              options ={{
+                headerLeft: ({tintColor}) => (
+                  <IconButton
+                    icon="arrow-back"
+                    color={tintColor}
+                    size={24}
+                    onPress={() => {navigation.navigate('Welcome')}}
+                  />
+                )
+              }}
+            />
+        </Stack.Navigator>
+      </AutocompleteDropdownContextProvider>
     </SafeAreaProvider>
   );
 }
