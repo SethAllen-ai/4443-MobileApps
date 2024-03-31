@@ -2,4 +2,4 @@
 
 |   #   | Folder Link | Assignment Description |
 | :---: | ----------- | ---------------------- |
-|   0   | link 0      | description 0          |
+|   <a href="https://github.com/SethAllen-ai/4443-MobileApps/tree/main/Assignments/03-A03"> A03 </a>   | link 0      | description 0          |
