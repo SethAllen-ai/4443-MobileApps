@@ -19,31 +19,28 @@ import { useContext } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ProfileScreen from './screens/ProfileScreen';
 import SearchScreen from './screens/SearchScreen';
-import { store } from './store/redux/store';
 
 const Stack = createNativeStackNavigator();
 
 function LandingRoot() {
   return (
     <SafeAreaProvider>
-      <Provider store={store}>
-        <AutocompleteDropdownContextProvider>
-          <Stack.Navigator
-            screenOptions={{
-              headerStyle: { backgroundColor: Colors.primary500 },
-              headerTintColor: 'white',
-              contentStyle: { backgroundColor: Colors.primary100 },
-            }}
-            >
-            <Stack.Screen name="Landing" component={LandingPage} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Signup" component={SignupScreen} />
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen}/>
-            <Stack.Screen name="Search" component={SearchScreen}/>
-          </Stack.Navigator>
-        </AutocompleteDropdownContextProvider>
-      </Provider>
+      <AutocompleteDropdownContextProvider>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: Colors.primary500 },
+            headerTintColor: 'white',
+            contentStyle: { backgroundColor: Colors.primary100 },
+          }}
+          >
+          <Stack.Screen name="Landing" component={LandingPage} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen}/>
+          <Stack.Screen name="Search" component={SearchScreen}/>
+        </Stack.Navigator>
+      </AutocompleteDropdownContextProvider>
     </SafeAreaProvider>
   );
 }
