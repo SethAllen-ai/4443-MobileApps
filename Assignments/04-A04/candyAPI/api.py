@@ -1,7 +1,7 @@
 # Libraries for FastAPI
 from fastapi import FastAPI, Query, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, Response,  FileResponse
+from fastapi.responses import RedirectResponse, Response,  FileResponse, JSONResponse
 from mongoManager import MongoManager
 from pydantic import BaseModel
 from pymongo import MongoClient
@@ -12,6 +12,8 @@ import uvicorn
 import os
 from random import shuffle
 from passlib.context import CryptContext
+from bson import ObjectId
+import jwt
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -19,12 +21,26 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def hash_password(password: str):
     return pwd_context.hash(password)
 
+# Convert ObjectId to string before returning the response
+def convert_to_dict(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    return obj
+
 
 class Person(BaseModel):
+    _id: int
     first: str
     last: str 
     email: str
-    password: str 
+    user: str
+    password: str
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        return super().default(obj)
 
 """
            _____ _____   _____ _   _ ______ ____
@@ -108,8 +124,8 @@ maybe you create your own country file, which would be great. But try to impleme
 organizes your ability to access a countries polygon data.
 """
 
-mm = MongoManager(db='candy_store_2')
-mm.setDb('candy_store_2')
+mm = MongoManager(db='candy_store')
+mm.setDb('candy_store')
 
 """
   _      ____   _____          _        __  __ ______ _______ _    _  ____  _____   _____
@@ -202,12 +218,39 @@ def get_image(img_id:str):
 @app.post("/register")
 def register(person: Person):
     """
-    Add a new candy to the store's inventory.
+    Add a new user to the store's login.
     """
     mm.setCollection("users")
     person.password = hash_password(person.password)
     print(hash_password(person.password))
-    mm.post(person.dict())
+
+    token = jwt.encode({"username": person.first}, "secret", algorithm="HS256")
+
+    # Add the token to the person's dictionary
+    person_data = person.dict()
+    person_data["token"] = token
+
+    # Save the person's data in the database
+    mm.post(person_data)
+
+    person_data = convert_to_dict(person_data)
+
+    # content = json.dumps({"token": token, "person": person_data}, cls=CustomJSONEncoder)
+
+    response_content = {"token": token, "person": person_data}
+
+    # return JSONResponse(content=content)
+
+    return response_content
+
+@app.get("/users")
+def get_users():
+    """
+    Add a new user to the store's login.
+    """
+    mm.setCollection("users")
+    users = mm.get_users()
+    return users
     
 
 @app.post("/candies")
@@ -233,6 +276,27 @@ def delete_candy(candy_id: int):
     """
     pass
 
+@app.delete("/users/{user_id}")
+def delete_user(user_id: str):
+    """
+    Delete a user by their ID.
+    """
+    # Convert the user_id to ObjectId if needed
+    if not mm.is_valid_object_id(user_id):
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+
+    # Set the collection to "users"
+    mm.setCollection("users")
+
+    # Try to delete the user
+    delete_result = mm.delete({"_id": ObjectId(user_id)})
+
+    # Check if the delete operation was successful
+    if delete_result.deleted_count == 1:
+        return {"message": "User deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
+
 
 @app.get("/categories")
 def list_categories():
@@ -241,7 +305,7 @@ def list_categories():
     """
     mm.setCollection('categories')
     result = mm.get()
-    return result
+    return result['data']
 
     pass
 
