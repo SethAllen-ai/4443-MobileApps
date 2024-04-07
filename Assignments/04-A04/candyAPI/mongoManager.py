@@ -1,4 +1,3 @@
-  
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.errors import PyMongoError
 from rich import print
@@ -232,8 +231,31 @@ class MongoManager:
             return {"success": False, "message": "No matching document found."}
 
     def delete(self, query):
-        # Implement the logic to delete data based on the query
-        pass
+        """
+        Deletes documents from the collection based on the provided query.
+
+        :param query: Dictionary specifying the criteria to select documents to delete.
+        """
+        try:
+            # Attempt to delete the documents matching the query
+            delete_result = self.collection.delete_many(query)
+            return delete_result
+        except PyMongoError as e:
+            # Handle any PyMongo errors
+            raise e
+    
+    def is_valid_object_id(self, oid):
+        """
+        Check if the provided string is a valid MongoDB ObjectId.
+
+        :param oid: String representing the ObjectId to check.
+        :return: True if the string is a valid ObjectId, False otherwise.
+        """
+        try:
+            ObjectId(oid)
+            return True
+        except Exception:
+            return False
 
     def store_image_in_mongodb(self,product_id,png_data):
 
@@ -247,6 +269,35 @@ class MongoManager:
         if image_document:
             return image_document['image_data']  # Assuming the Base64 data is stored under 'image_data'
         return None
+
+    def get_users(self, query=None, filter=None, skip=0, limit=0, sort_criteria=None):
+        """
+        Retrieves users from the collection based on the provided criteria.
+
+        :param query: Dictionary for filtering users using MongoDB query syntax.
+        :param filter: Dictionary specifying which fields to include/exclude in the results.
+        :param skip: Integer specifying the number of users to skip.
+        :param limit: Integer specifying the maximum number of users to return.
+        :param sort_criteria: List of tuples specifying field and direction to sort by.
+        :return: Dictionary with the operation's success status, result size, and data.
+        """
+        try:
+            if sort_criteria is None:
+                sort_criteria = [("_id", 1)]  # Default sort criteria if not provided
+
+            # Perform the query to retrieve users
+            results = self.collection.find(query, filter).sort(sort_criteria).skip(skip).limit(limit)
+            user_list = [{**user, '_id': str(user['_id'])} for user in results]
+            return {
+                "success": True,
+                "result_size": len(user_list),
+                "data": user_list
+            }
+        except PyMongoError as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
 
 
 
