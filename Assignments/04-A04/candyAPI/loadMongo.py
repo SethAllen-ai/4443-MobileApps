@@ -29,7 +29,7 @@ def load():
 
     db = MongoManager()
 
-    db.setDb("candy_store_2")
+    db.setDb("candy_store")
 
     db.dropCollection('candies')
 
@@ -55,10 +55,8 @@ def load():
         with open(file) as f:
             data = json.load(f)
 
-            summary["count"] = len(data)
             summary["name"] = category
             summary["_id"] = category_id
-            summary["candies"] = []
             category_id += 1
 
             # iterate over the candy items in each of the category files
@@ -79,7 +77,6 @@ def load():
                 if not index in big_candy_dict:
                     item["_id"] = index
                     big_candy_dict[index] = item
-                    summary["candies"].append(index)
                     item['img_path'] = "./images/"+image_folder+"/"+id+'.jpg'
                     print(item['img_path'])
             
