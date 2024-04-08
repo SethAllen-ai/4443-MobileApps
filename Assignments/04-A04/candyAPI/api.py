@@ -36,6 +36,17 @@ class Person(BaseModel):
     user: str
     password: str
 
+class Candy(BaseModel):
+    _id: int
+    id: str
+    name: str
+    prod_url: str
+    img_url: str
+    price: float
+    desc: str
+    categorys: List[int]
+    img_path: str
+
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ObjectId):
@@ -178,7 +189,7 @@ def candies_by_category(category: str):
     """
     mm.setCollection('candies')
     result = mm.get(
-        query = {'category':category},
+        query = {'category':[str(category)]},
         filter = {"_id":0,"name":1,"price":1,"category":1})
     return result
 
@@ -193,7 +204,7 @@ def get_candy_by_id(
     mm.setCollection('candies')
     result = mm.get(
         query = {'_id':int(id)})
-    return result
+    return result['data']
 
 @app.get("/image/base64/{image_id}")
 def get_image(image_id: str):
@@ -210,19 +221,28 @@ def get_image(image_id: str):
 
 @app.get("/image/")
 def get_image(img_id:str):
-    mm.setCollection('candies')
+    mm.setCollection('images')
     result = mm.get(query = {'_id':int(img_id)})
 
     return FileResponse(result['data']['img_path'])
 
-@app.post("/register")
+@app.get("/images")
+def list_all_images():
+    """
+    Retrieve a list of all candies available in the store.
+    """
+    mm.setCollection('images')
+    result = mm.get()
+    return result['data']
+
+@app.post("/register/{data}")
 def register(person: Person):
     """
     Add a new user to the store's login.
     """
     mm.setCollection("users")
-    person.password = hash_password(person.password)
-    print(hash_password(person.password))
+    # person.password = hash_password(person.password)
+    # print(hash_password(person.password))
 
     token = jwt.encode({"username": person.first}, "secret", algorithm="HS256")
 
@@ -233,16 +253,6 @@ def register(person: Person):
     # Save the person's data in the database
     mm.post(person_data)
 
-    person_data = convert_to_dict(person_data)
-
-    # content = json.dumps({"token": token, "person": person_data}, cls=CustomJSONEncoder)
-
-    response_content = {"token": token, "person": person_data}
-
-    # return JSONResponse(content=content)
-
-    return response_content
-
 @app.get("/users")
 def get_users():
     """
@@ -250,15 +260,18 @@ def get_users():
     """
     mm.setCollection("users")
     users = mm.get_users()
-    return users
+    return users['data']
     
 
 @app.post("/candies")
-def add_new_candy():
+def add_new_candy(new_candy: Candy):
     """
     Add a new candy to the store's inventory.
     """
-    pass
+    # Assuming Candy is a Pydantic model representing the candy data
+    mm.setCollection("candies")
+    mm.post(new_candy.dict())
+    return {"message": "Candy added successfully"}
 
 
 @app.put("/candies/{candy_id}")
@@ -266,7 +279,13 @@ def update_candy_info(candy_id: int):
     """
     Update information about an existing candy.
     """
-    pass
+    # Assuming Candy is a Pydantic model representing the candy data
+    mm.setCollection("candies")
+    result = mm.update({"_id": candy_id}, updated_candy.dict())
+    if result.modified_count == 1:
+        return {"message": "Candy updated successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Candy not found")
 
 
 @app.delete("/candies/{candy_id}")
@@ -274,7 +293,12 @@ def delete_candy(candy_id: int):
     """
     Remove a candy from the store's inventory.
     """
-    pass
+    mm.setCollection("candies")
+    result = mm.delete({"_id": candy_id})
+    if result.deleted_count == 1:
+        return {"message": "Candy deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Candy not found")
 
 @app.delete("/users/{user_id}")
 def delete_user(user_id: str):
