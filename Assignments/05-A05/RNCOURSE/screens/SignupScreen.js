@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import AuthContent from '../components/Auth/AuthContent';
 import LoadingOverlay from '../components/ui/LoadingOverlay';
 import { AuthContext } from '../store/auth-context';
-import { createUser } from '../util/auth';
+import { createUser } from '../util/SignupAuth';
 
 function SignupScreen({navigation}) {
   
@@ -12,15 +12,14 @@ function SignupScreen({navigation}) {
 
   const authCtx = useContext(AuthContext);
 
-  async function signupHandler({ email, password }) {
+  async function signupHandler({ firstName, lastName, email, userName, password }) {
     setIsAuthenticating(true);
     try {
-      const token = await createUser(email, password);
-      authCtx.authenticate(token);
+      await createUser(firstName, lastName, email, userName, password);
       navigation.navigate('Login');
     } catch (error) {
       Alert.alert(
-        'Authentication failed', 
+        'Authentication failed',
         'Could not create user, please check your input and try again later.'
       );
       setIsAuthenticating(false);

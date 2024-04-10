@@ -45,7 +45,7 @@ const LandingPage = ({navigation}) => {
         }}
         source={require('../assets/DEGENERATE_GAMBLING_CLUB.png')}
       />
-      <Text style={styles.title}>Welcome to Pervert Candy</Text>
+      <Text style={styles.title}>Welcome to Perverted Candy</Text>
       <View style={styles.row}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
           <AntDesign name="login" size={25} color="black" />

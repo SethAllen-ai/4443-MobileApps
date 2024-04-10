@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { lazy, useEffect, useState, Suspense } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
-import { Provider } from 'react-redux';
 
 import LoadingOverlay from './components/ui/LoadingOverlay';
 import LandingPage from './screens/LandingPage';
@@ -19,6 +18,7 @@ import { useContext } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ProfileScreen from './screens/ProfileScreen';
 import SearchScreen from './screens/SearchScreen';
+// const BottomTabNavigator = lazy(() => import('./components/ui/BottomTabNavigator'));
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +32,7 @@ function LandingRoot() {
             headerTintColor: 'white',
             contentStyle: { backgroundColor: Colors.primary100 },
           }}
-          >
+        >
           <Stack.Screen name="Landing" component={LandingPage} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
@@ -40,6 +40,9 @@ function LandingRoot() {
           <Stack.Screen name="Profile" component={ProfileScreen}/>
           <Stack.Screen name="Search" component={SearchScreen}/>
         </Stack.Navigator>
+        {/* <Suspense fallback={<LoadingOverlay message={"Loading Tab Navigator"} />}>
+          <BottomTabNavigator/>
+        </Suspense> */}
       </AutocompleteDropdownContextProvider>
     </SafeAreaProvider>
   );
@@ -129,7 +132,6 @@ function Root() {
       if(storedToken) {
         authCtx.authenticate(storedToken);
       }
-
       setIsTryingLogin(false);
     }
 

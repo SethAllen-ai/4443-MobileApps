@@ -10,15 +10,19 @@ import { LoadingOverlay } from '../components/ui/LoadingOverlay';
 function SearchScreen () {
   const [categoriesData, setCategoriesData] = useState([]);
   const [candiesData, setCandiesData] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState();
-  const [selectedCandy, setSelectedCandy] = useState();
+  const [selectedCategory, setSelectedCategory] = useState("default");
+  const [selectedCandy, setSelectedCandy] = useState("default");
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     axios.get('http://167.99.57.236:8084/categories')
       .then((response) => {
-        setCategoriesData(response.data.categories);
+        const modifiedCategories = response.data.map(category => ({
+          id: category._id,
+          name: category.name
+        }));
+        setCategoriesData(modifiedCategories);
         setLoading(false);
       }) 
       .catch((error) => {
@@ -31,7 +35,18 @@ function SearchScreen () {
 
     axios.get('http://167.99.57.236:8084/candies')
       .then((response) => {
-        setCandiesData(response.data);
+        const modifiedCandies = response.data.map(candy => ({
+          catId: candy._id,
+          id: candy.id,
+          name: candy.name,
+          prod_url: candy.prod_url,
+          img_url: candy.img_url,
+          price: candy.price,
+          desc: candy.desc,
+          categorys: candy.categorys,
+          img_path: candy.img_path
+        }));
+        setCandiesData(modifiedCandies);
         setLoading(false);
       })
       .catch((error) => {
@@ -43,12 +58,12 @@ function SearchScreen () {
       }); 
   }, []);
 
-  // if (loading) {
+  // if (!loading) {
   //   return <LoadingOverlay message={"Fetching Data!"} />;
   // }
 
   const filiteredCandiesData = selectedCategory && selectedCategory.id
-    ? candiesData.filter(candy => candy.category_id === selectedCategory.id)
+    ? candiesData.filter(candy => candy.categorys.includes(+selectedCategory.id + 1))
     : candiesData;
 
 
@@ -65,8 +80,8 @@ function SearchScreen () {
 
   function resetSelection () {
     setIsVisible(true);
-    setSelectedCategory(null);
-    setSelectedCandy(null);
+    setSelectedCategory("default");
+    setSelectedCandy("default");
   };
 
   if(!isVisible) {

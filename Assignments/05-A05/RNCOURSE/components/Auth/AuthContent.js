@@ -12,7 +12,10 @@ function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
 
   const [credentialsInvalid, setCredentialsInvalid] = useState({
+    firstName: false,
+    lastName: false,
     email: false,
+    userName: false,
     password: false,
     confirmEmail: false,
     confirmPassword: false,
@@ -27,31 +30,49 @@ function AuthContent({ isLogin, onAuthenticate }) {
   }
 
   function submitHandler(credentials) {
-    let { email, confirmEmail, password, confirmPassword } = credentials;
+    let { firstName, lastName, email, confirmEmail, userName, password, confirmPassword } = credentials;
 
     email = email.trim();
     password = password.trim();
 
     const emailIsValid = email.includes('@');
     const passwordIsValid = password.length > 6;
-    const emailsAreEqual = email === confirmEmail;
-    const passwordsAreEqual = password === confirmPassword;
 
-    if (
-      !emailIsValid ||
-      !passwordIsValid ||
-      (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
-    ) {
-      Alert.alert('Invalid input', 'Please check your entered credentials.');
+    if (!emailIsValid) {
+      Alert.alert('Invalid email', 'Please enter a valid email address.');
       setCredentialsInvalid({
         email: !emailIsValid,
-        confirmEmail: !emailIsValid || !emailsAreEqual,
-        password: !passwordIsValid,
-        confirmPassword: !passwordIsValid || !passwordsAreEqual,
+        confirmEmail: !emailIsValid,
       });
       return;
     }
-    onAuthenticate({ email, password });
+    
+    if (!isLogin) {
+      const firstNameIsValid = firstName.length > 0;
+      const lastNameIsValid = lastName.length > 0;
+      const userNameIsValid = userName.length > 2;
+      const emailsAreEqual = email === confirmEmail;
+      const passwordsAreEqual = password === confirmPassword;
+
+      if (
+        !firstNameIsValid ||
+        !lastNameIsValid ||
+        !emailIsValid ||
+        !userNameIsValid ||
+        !passwordIsValid ||
+        (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
+      ) {
+        Alert.alert('Invalid input', 'Please check your entered credentials.');
+        setCredentialsInvalid({
+          email: !emailIsValid,
+          confirmEmail: !emailIsValid || !emailsAreEqual,
+          password: !passwordIsValid,
+          confirmPassword: !passwordIsValid || !passwordsAreEqual,
+        });
+        return;
+      }
+    }
+    onAuthenticate({ firstName, lastName, email, userName, password });
   }
 
   const discordHandler = useCallback(async () => {

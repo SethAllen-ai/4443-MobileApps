@@ -48,8 +48,11 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
 
   function submitHandler() {
     onSubmit({
+      firstName: enteredFirstName,
+      lastName: enteredLastName,
       email: enteredEmail,
       confirmEmail: enteredConfirmEmail,
+      userName: enteredUsername,
       password: enteredPassword,
       confirmPassword: enteredConfirmPassword,
     });
