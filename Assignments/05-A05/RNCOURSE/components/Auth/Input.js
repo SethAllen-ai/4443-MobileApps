@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   label: {
-    color: 'white',
+    color: Colors.primary,
     marginBottom: 4,
   },
   labelInvalid: {

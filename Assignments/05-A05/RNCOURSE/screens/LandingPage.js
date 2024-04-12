@@ -52,7 +52,7 @@ const LandingPage = ({navigation}) => {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <View style={styles.space} />
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Welcome')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Top')}>
           <Ionicons name="home-sharp" size={25} color="black" />
           <Text style={styles.buttonText}>Home</Text>
         </TouchableOpacity>
@@ -93,5 +93,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
 });
+
+
+LandingPage.navigationOptions = {
+  tabBarVisible: false, // Hide the bottom tab bar on this screen
+};
 
 export default LandingPage;

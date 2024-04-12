@@ -6,8 +6,6 @@ async function authenticate(mode, email, password) {
   try {
     const response = await axios.get(url);
 
-    console.log(response);
-
     if (response.data.length === 0) {
       // No users found
       return null;

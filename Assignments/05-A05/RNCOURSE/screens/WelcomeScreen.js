@@ -1,15 +1,13 @@
 import axios from 'axios';
 import { Alert, Image, StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { lazy, useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 
 import { Colors } from '../constants/styles';
 import LoadingOverlay from '../components/ui/LoadingOverlay';
-import FlatButton from '../components/ui/FlatButton';
-// const BottomTabNavigator = lazy(() => import('../components/ui/BottomTabNavigator'));
 
-function WelcomeScreen({navigation}) {
+function WelcomeScreen() {
   const [candiesData, setCandiesData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
@@ -32,25 +30,26 @@ function WelcomeScreen({navigation}) {
 
   const renderCandyItem = ({ item }) => (
     <View style={styles.candyItem}>
-      <TouchableOpacity onPress={() => {pickedCandy(); setSelectedCandy(item)}}>
+      <TouchableOpacity onPress={() => {setSelectedCandy(item); pickedCandy(item);}}>
         <Text>{item.name}</Text>
         <Text>Price: ${item.price}</Text>
         <Image
           style={{ width: 50, height: 50, borderRadius: 300/2 }}
           source={{ uri: item.img_url }}
-          />
+        />
       </TouchableOpacity>
     </View>
   );
 
-  const pickedCandy = () => {
-    if(!selectedCandy) {
+  const pickedCandy = (item) => {
+    if(!item) {
       Alert.alert(
         'No Candy Picked.',
         'Please select a candy first.'
       );
       return;
     }
+    setSelectedCandy(item);
     setIsVisible(false);
   };
 
@@ -94,11 +93,6 @@ function WelcomeScreen({navigation}) {
         numColumns={2}
       />
       )}
-      <FlatButton children={"Profile"} onPress={() => navigation.navigate('Profile')} />
-      <FlatButton children={"Search"} onPress={() => navigation.navigate('Search')} />
-      {/* <Suspense fallback={<LoadingOverlay message={"Loading Tab Navigator"} />}>
-        <BottomTabNavigator/>
-      </Suspense> */}
     </View>
   );
 }
@@ -106,6 +100,22 @@ function WelcomeScreen({navigation}) {
 export default WelcomeScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    margin: 16,
+    borderRadius: 8,
+    flex: 1,
+    flexDirection: 'column',
+    padding: 16,
+    backgroundColor: Colors.primary800,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  screenText: {
+    textAlign: 'center',
+    color: Colors.primary100,
+    fontSize: 18,
+  },
   rootContainer: {
     margin: 16,
     borderRadius: 8,
@@ -122,7 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 8,
-    backgroundColor: 'white', // Add a background color to the candy item for better visibility
+    backgroundColor: Colors.primary, // Add a background color to the candy item for better visibility
     padding: 10,
     borderRadius: 8,
     backgroundColor: Colors.primary100,
@@ -137,7 +147,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonText: {
-    color: 'white',
+    color: Colors.primary,
     marginLeft: 10,
     fontSize: 18,
     fontWeight: 'bold',

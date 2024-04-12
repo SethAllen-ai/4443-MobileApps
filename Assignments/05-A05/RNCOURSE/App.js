@@ -1,24 +1,19 @@
-import { lazy, useEffect, useState, Suspense } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import LoadingOverlay from './components/ui/LoadingOverlay';
 import LandingPage from './screens/LandingPage';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
 import { Colors } from './constants/styles';
 import AuthContextProvider, { AuthContext } from './store/auth-context';
-import IconButton from './components/ui/IconButton';
-import { useContext } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import ProfileScreen from './screens/ProfileScreen';
-import SearchScreen from './screens/SearchScreen';
-// const BottomTabNavigator = lazy(() => import('./components/ui/BottomTabNavigator'));
+import BottomTabNavigator from './components/ui/BottomTabNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,20 +24,21 @@ function LandingRoot() {
         <Stack.Navigator
           screenOptions={{
             headerStyle: { backgroundColor: Colors.primary500 },
-            headerTintColor: 'white',
+            headerTintColor: Colors.primary,
             contentStyle: { backgroundColor: Colors.primary100 },
           }}
         >
           <Stack.Screen name="Landing" component={LandingPage} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen}/>
-          <Stack.Screen name="Search" component={SearchScreen}/>
+          <Stack.Screen 
+            name="Top" 
+            component={BottomTabNavigator} 
+            options={{
+              headerShown: false
+            }}
+          />
         </Stack.Navigator>
-        {/* <Suspense fallback={<LoadingOverlay message={"Loading Tab Navigator"} />}>
-          <BottomTabNavigator/>
-        </Suspense> */}
       </AutocompleteDropdownContextProvider>
     </SafeAreaProvider>
   );
@@ -55,55 +51,14 @@ function AuthenticatedStack() {
   return (
     <SafeAreaProvider>
       <AutocompleteDropdownContextProvider>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: Colors.primary500 },
-            headerTintColor: 'white',
-            contentStyle: { backgroundColor: Colors.primary100 },
-          }}
-        >
+        <Stack.Navigator>
           <Stack.Screen 
-            name="Welcome" 
-            component={WelcomeScreen} 
-            options = {{
-              headerRight: ({tintColor}) => (
-                <IconButton 
-                  icon="exit" 
-                  color={tintColor} 
-                  size={24} 
-                  onPress={authCtx.logout} 
-                />
-              ),
+            name="Bottom" 
+            component={BottomTabNavigator}
+            options={{
+              headerShown: false
             }}
           />
-          <Stack.Screen 
-            name="Profile"
-            component={ProfileScreen}
-            options ={{
-              headerLeft: ({tintColor}) => (
-                <IconButton
-                  icon="arrow-back"
-                  color={tintColor}
-                  size={24}
-                  onPress={() => {navigation.navigate('Welcome')}}
-                />
-              )
-            }}
-          />
-          <Stack.Screen 
-              name="Search"
-              component={SearchScreen}
-              options ={{
-                headerLeft: ({tintColor}) => (
-                  <IconButton
-                    icon="arrow-back"
-                    color={tintColor}
-                    size={24}
-                    onPress={() => {navigation.navigate('Welcome')}}
-                  />
-                )
-              }}
-            />
         </Stack.Navigator>
       </AutocompleteDropdownContextProvider>
     </SafeAreaProvider>
@@ -124,7 +79,7 @@ function Navigation() {
 function Root() {
   const [isTryingLogin, setIsTryingLogin] = useState(true);
   const authCtx = useContext(AuthContext);
-
+  
   useEffect(() => {
     async function fetchToken() {
       const storedToken = await AsyncStorage.getItem('token');

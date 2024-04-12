@@ -12,14 +12,12 @@ function LoginScreen({ navigation }) {
   const authCtx = useContext(AuthContext);
 
   async function loginHandler({ email, password }) {
-    console.log(email);
-    console.log(password);
     setIsAuthenticating(true);
     try {
       const token = await login(email, password);
       if (token !== null) {
         authCtx.authenticate(token);
-        navigation.navigate('Welcome');
+        navigation.navigate('Top');
       }
       else {
         setIsAuthenticating(false);

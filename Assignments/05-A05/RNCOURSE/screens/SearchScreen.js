@@ -10,9 +10,19 @@ import { LoadingOverlay } from '../components/ui/LoadingOverlay';
 function SearchScreen () {
   const [categoriesData, setCategoriesData] = useState([]);
   const [candiesData, setCandiesData] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("default");
-  const [selectedCandy, setSelectedCandy] = useState("default");
-  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState({
+    _id: null,
+    name: '',
+  });
+  const [selectedCandy, setSelectedCandy] = useState({
+    _id: null,
+    id: null,
+    name: '',
+    img_url: '',
+    desc: '',
+    price: 0,
+    categorys: null,
+  });
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -23,14 +33,12 @@ function SearchScreen () {
           name: category.name
         }));
         setCategoriesData(modifiedCategories);
-        setLoading(false);
       }) 
       .catch((error) => {
         Alert.alert(
           'Failed!',
           'Failed to get data.'
         );
-        setLoading(false);
       });
 
     axios.get('http://167.99.57.236:8084/candies')
@@ -47,20 +55,14 @@ function SearchScreen () {
           img_path: candy.img_path
         }));
         setCandiesData(modifiedCandies);
-        setLoading(false);
       })
       .catch((error) => {
         Alert.alert(
           'Failed!',
           'Failed to get data.'
         );
-        setLoading(false);
       }); 
   }, []);
-
-  // if (!loading) {
-  //   return <LoadingOverlay message={"Fetching Data!"} />;
-  // }
 
   const filiteredCandiesData = selectedCategory && selectedCategory.id
     ? candiesData.filter(candy => candy.categorys.includes(+selectedCategory.id + 1))
@@ -68,7 +70,7 @@ function SearchScreen () {
 
 
   const handleDisplayCandy = () => {
-    if(!selectedCandy) {
+    if(!selectedCandy || !selectedCandy.id) {
       Alert.alert(
         'No Candy Picked.',
         'Please select a candy first.'
@@ -80,8 +82,18 @@ function SearchScreen () {
 
   function resetSelection () {
     setIsVisible(true);
-    setSelectedCategory("default");
-    setSelectedCandy("default");
+    setSelectedCategory({
+      _id: null,
+      name: '',
+    });
+    setSelectedCandy({
+      _id: null,
+      id: null,
+      name: '',
+      img_url: '',
+      desc: '',
+      price: 0,
+    });
   };
 
   if(!isVisible) {
@@ -96,7 +108,7 @@ function SearchScreen () {
           <Text style={styles.screenText}>Description: {selectedCandy.desc}</Text>
           <Text style={styles.screenText}>Price: ${selectedCandy.price}</Text>
           <TouchableOpacity style={styles.button} onPress={resetSelection}>
-            <MaterialCommunityIcons name="backup-restore" size={55} color="white"/>
+            <MaterialCommunityIcons name="backup-restore" size={55} color={Colors.primary} />
             <Text style={styles.buttonText}>Reset Selection</Text>
           </TouchableOpacity>
         </View>
@@ -111,7 +123,7 @@ function SearchScreen () {
             width: 300,
             height: 300,
             borderRadius: 300/2,
-            marginTop: -90,
+            marginTop: -20,
             marginBottom: 18,
           }}
           source={require('../assets/DEGENERATE_GAMBLING_CLUB.png')}
@@ -128,12 +140,24 @@ function SearchScreen () {
             dataSet={filiteredCandiesData.map (candy => ({ id: candy.id, title: candy.name }))}
             inputContainerStyle={styles.title}
             onSelectItem={(item) => {
-              const selectedCandyDetails = candiesData.find(candy => candy.id === item.id);
-              setSelectedCandy(selectedCandyDetails);
+              if (item && item.id) {
+                const selectedCandyDetails = candiesData.find(candy => candy.id === item.id);
+                setSelectedCandy(selectedCandyDetails);
+              } else {
+                setSelectedCandy({
+                  _id: null,
+                  id: null,
+                  name: '',
+                  img_url: '',
+                  desc: '',
+                  price: 0,
+                  categorys: null,
+                });
+              }
             }}
           />
           <TouchableOpacity style={styles.button} onPress={handleDisplayCandy}>
-            <MaterialCommunityIcons name="candy" size={60} color="white" />
+            <MaterialCommunityIcons name="candy" size={60} color={Colors.primary} />
             <Text style={styles.buttonText}>Show Candy</Text>
           </TouchableOpacity>
         </View>
@@ -174,7 +198,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: Colors.primary,
     fontSize: 18,
     marginLeft: 10,
   },
