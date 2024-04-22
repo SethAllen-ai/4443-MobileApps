@@ -1,24 +1,41 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, StyleSheet, Button, TextInput, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, Text, StyleSheet, Button } from 'react-native';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
 
 const LocationScreen = () => {
     const [location, setLocation] = useState(null);
+    const [userLocation, setUserLocation] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
     const [username, setUsername] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
+    const [trigger, setTrigger] = useState(false);
 
-
-
-    const shareLocation = async () => {
-        if (location && username) {
-            // Implement the API call to your backend to share the location
-            // This will include the location data and the username
-            console.log('Sharing location with:', username, 'Location:', location);
-            // You might use fetch or axios to post this data to your server
-        }
-    };
+    useFocusEffect(
+        React.useCallback(() => {
+            return () => {
+                setLocation(null);
+                setUserLocation([]);
+                setErrorMsg(null);
+                setUsername('');
+                setTrigger(false);
+            };
+        }, [])
+    );
+    
+    useEffect(() => {
+        axios.get('http://167.99.57.236:8084/users_with_locations')
+          .then((response) => {
+            setUserLocation(response.data);
+          }) 
+          .catch((error) => {
+            Alert.alert(
+              'Failed!',
+              'Failed to get data.'
+            );
+          });
+    }, []);
 
     useEffect(() => {
         (async () => {
@@ -28,10 +45,18 @@ const LocationScreen = () => {
                 return;
             }
 
-            let currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation(currentLocation);
+            try {
+                let currentLocation = await Location.getCurrentPositionAsync({});
+                setLocation(currentLocation);
+            } catch (error) {
+                setErrorMsg('Failed to get location: ' + error.message);
+            }
         })();
-    }, []);
+    }, [trigger]);
+
+    const handleButtonClick = () => {
+        setTrigger(!trigger);
+    };
 
     let text = 'Waiting..';
     if (errorMsg) {
@@ -42,7 +67,7 @@ const LocationScreen = () => {
 
     return (
         <View style={styles.container}>
-            {location ? (
+            {location ? ( // Check if location is available and map is ready
                 <MapView
                     style={styles.map}
                     initialRegion={{
@@ -59,47 +84,21 @@ const LocationScreen = () => {
                         }}
                         title="Your Location"
                     />
+                    {userLocation.map((user, index) => (
+                        <Marker
+                            key={index} 
+                            coordinate={{
+                                latitude: user.lat,
+                                longitude: user.lon,
+                            }}
+                            title={`${user.first},${user.last}`}
+                        />
+                    ))}
                 </MapView>
             ) : (
                 <Text>{text}</Text>
             )}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <TouchableOpacity
-                            style={styles.closeButton}
-                            onPress={() => {
-                                setModalVisible(!modalVisible);
-                            }}>
-                            <Text style={{ fontSize: 24 }}>×</Text>
-                        </TouchableOpacity>
-                        <TextInput
-                            style={styles.modalText}
-                            placeholder="Enter friend's username"
-                            value={username}
-                            onChangeText={setUsername}
-                        />
-                        <Button
-                            title="Submit"
-                            onPress={() => {
-                                // Here, you'd implement the function to share the location
-                                // For simplicity, we're just closing the modal
-                                console.log('Location shared with:', username);
-                                setModalVisible(!modalVisible);
-                                setUsername(''); // Resetting username input for next use
-                            }}
-                        />
-                    </View>
-                </View>
-            </Modal>
-            <Button title="Share Location" onPress={() => setModalVisible(true)} />
+            <Button title="Reload Location" onPress={handleButtonClick} />
         </View>
     );
 };
@@ -143,7 +142,13 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#DDDDDD',
     },
-
+    map: {
+        width: '100%',
+        height: '100%',
+    },
+    container: {
+        flex: 1
+    }
 });
 
 export default LocationScreen;

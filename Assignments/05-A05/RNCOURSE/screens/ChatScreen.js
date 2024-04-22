@@ -5,12 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Colors } from '../constants/styles';
 
-function ProfileScreen() {
+function ChatScreen() {
  const [token, setToken] = useState();
  const [userData, setUserData] = useState();
  const url = `http://167.99.57.236:8084/users`;
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchData = async () => {
       try {
         const storedToken = await AsyncStorage.getItem('token');
@@ -52,7 +52,7 @@ function ProfileScreen() {
     };
 
     fetchData();
-  }, []);
+ }, []);
 
   function maskPassword(password) {
     return password.replace(/./g, '*');
@@ -78,7 +78,7 @@ function ProfileScreen() {
   );
 }
 
-export default ProfileScreen;
+export default ChatScreen;
 
 const styles = StyleSheet.create({
   title: {
