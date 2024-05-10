@@ -1,0 +1,9 @@
+[Unit]
+Description=FastAPI app
+After=network.target
+[Service]
+Type=simple
+ExecStart=/root/api/bin/python3 /root/A04/candyAPI/api.py
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
